@@ -6,9 +6,10 @@
 
 ## Overview
 
-RAGCraft is a structured learning repository that walks through the full spectrum of RAG techniques. It is organized into two main modules:
+RAGCraft is a structured learning repository that walks through the full spectrum of RAG techniques. It is organized into three main modules:
 
 - **`corrective-rag/`** — A progressive, 6-notebook series implementing the [Corrective RAG (CRAG)](https://arxiv.org/abs/2401.15884) paper step by step using LangChain + LangGraph.
+- **`self-rag/`** — A progressive, 8-notebook series implementing the [Self-RAG](https://arxiv.org/abs/2310.11511) paper, teaching the model to reflect on its own retrieval and generation decisions using four critique signals: `Retrieve`, `IsREL`, `IsSUP`, and `IsUSE`.
 - **`RAGify/`** — A broader collection covering RAG from scratch, database-backed retrieval (MongoDB, AstraDB, LanceDB), and multimodal RAG with Gemini, LlamaIndex, and more.
 
 ---
@@ -34,6 +35,22 @@ RAGCraft/
 │       ├── book1.pdf
 │       ├── book2.pdf
 │       └── book3.pdf
+│
+├── self-rag/                               # Self-RAG — step-by-step series
+│   ├── self_rag_step1.ipynb                # Adaptive retrieval decision (Retrieve token)
+│   ├── self_rag_step2.ipynb                # Document relevance filtering (IsREL)
+│   ├── self_rag_step3.ipynb                # Context-grounded generation
+│   ├── self_rag_step4.ipynb                # Answer support verification (IsSUP)
+│   ├── self_rag_step5.ipynb                # Retry limit & loop control
+│   ├── self_rag_step6.ipynb                # Usefulness evaluation (IsUSE)
+│   ├── self_rag_step7.ipynb                # Query rewriting — complete Self-RAG
+│   ├── self_rag_web.ipynb                  # Bonus: web search variant
+│   ├── self-rag paper.pdf                  # Source research paper
+│   ├── self-rag.png                        # Self-RAG architecture diagram
+│   └── documents/                          # NexaAI sample PDFs
+│       ├── Company_Policies.pdf
+│       ├── Company_Profile.pdf
+│       └── Product_and_Pricing.pdf
 │
 └── RAGify/                                 # Diverse RAG implementations
     ├── requirements.txt
@@ -73,7 +90,26 @@ Implements the CRAG paper as a 6-step progressive series. Each notebook builds o
 
 ---
 
-### 2. RAG from Scratch
+### 2. Self-RAG Series
+
+Implements the Self-RAG paper ([arXiv 2310.11511](https://arxiv.org/abs/2310.11511)) as an 8-step progressive series. Each notebook builds on the previous, adding one new self-reflection capability to the LangGraph pipeline:
+
+| # | Notebook | Concept Added | Self-RAG Token |
+|---|----------|---------------|---------------|
+| 1 | `self_rag_step1.ipynb` | Adaptive retrieval decision | `Retrieve` |
+| 2 | `self_rag_step2.ipynb` | Document relevance filtering | `IsREL` |
+| 3 | `self_rag_step3.ipynb` | Context-grounded generation | — |
+| 4 | `self_rag_step4.ipynb` | Answer support verification + revise loop | `IsSUP` |
+| 5 | `self_rag_step5.ipynb` | Retry limit & loop control | — |
+| 6 | `self_rag_step6.ipynb` | Usefulness evaluation | `IsUSE` |
+| 7 | `self_rag_step7.ipynb` | Query rewriting — complete Self-RAG | — |
+| Bonus | `self_rag_web.ipynb` | Live web search variant | all |
+
+**Stack:** `LangChain` · `LangGraph` · `FAISS` · `OpenAI` · `Pydantic`
+
+---
+
+### 3. RAG from Scratch
 
 `RAGify/RAG/notebooks/RAG_Pipeline_from_Scratch.ipynb`
 
@@ -83,7 +119,7 @@ A 146-cell comprehensive walkthrough of every component in a RAG system — chun
 
 ---
 
-### 3. Database-Backed RAG
+### 4. Database-Backed RAG
 
 `RAGify/RAG/MongoDB and RAG/rag_with_huggingface_and_mongodb.ipynb`
 
@@ -93,7 +129,7 @@ Production-style RAG using HuggingFace embeddings and MongoDB as a persistent ve
 
 ---
 
-### 4. Multimodal RAG
+### 5. Multimodal RAG
 
 Five notebooks covering different flavors of multimodal RAG:
 
