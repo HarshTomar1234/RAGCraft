@@ -1,0 +1,52 @@
+# ── Core LLM & Orchestration ────────────────────────────────────────────────
+openai
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-google-genai
+langgraph
+
+# ── Vector Stores ────────────────────────────────────────────────────────────
+faiss-cpu
+langchain-astradb
+lancedb
+pymongo
+langchain-mongodb
+
+# ── Embeddings & Models ──────────────────────────────────────────────────────
+sentence-transformers==2.5.1
+transformers==4.38.2
+accelerate
+torch
+datasets
+
+# ── Document Parsing ─────────────────────────────────────────────────────────
+PyMuPDF==1.23.26
+pdfplumber
+unstructured[all-docs]
+
+# ── Web Search ───────────────────────────────────────────────────────────────
+tavily-python
+
+# ── LlamaIndex ───────────────────────────────────────────────────────────────
+llama-index
+llama-index-vector-stores-lancedb
+
+# ── Data & Utilities ─────────────────────────────────────────────────────────
+numpy==1.26.4
+pandas==2.2.1
+matplotlib==3.8.3
+tqdm==4.66.2
+Requests==2.31.0
+pydantic
+python-dotenv
+
+# ── NLP ──────────────────────────────────────────────────────────────────────
+spacy
+
+# ── Environment ──────────────────────────────────────────────────────────────
+jupyter
+jupyterlab
+wheel
+bitsandbytes
