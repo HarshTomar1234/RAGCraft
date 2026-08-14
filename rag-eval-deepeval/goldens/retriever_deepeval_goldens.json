@@ -1,0 +1,92 @@
+[
+  {
+    "id": "g001",
+    "query": "How do unanticipated injection attempts, emergent failures, and scalability challenges collectively impact chatbot production deployment?",
+    "ideal_answer": "Unanticipated injection attempts, emergent failures, and scalability challenges collectively create significant risks in chatbot production deployment:\n\n1. **Injection Attempts**: Users will try various injection techniques to bypass security and extract unauthorized information from the chatbot that shouldn't be revealed, exposing vulnerabilities not caught during testing.\n\n2. **Emergent Failures**: Systematic failures become visible only at production scale—issues that don't appear in offline testing environments. These failures occur due to real-world conditions and interactions.\n\n3. **Scalability Challenges**: Sudden traffic spikes (e.g., after launching new courses) bring thousands of concurrent users, causing latency increases and performance degradation that cannot be replicated in offline testing.\n\nTogether, these factors mean production environments expose a much larger superset of edge cases than controlled testing, requiring robust handling of unforeseen scenarios at scale.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g002",
+    "query": "How do multiple eval points prevent pipeline failures despite individual component functionality?",
+    "ideal_answer": "Multiple eval points prevent pipeline failures because even when individual components (like the generator and retriever) work correctly in isolation, they can produce incorrect results when combined. In the described case, the generator and retriever were both functioning properly independently, but incorrect documents were provided as input, leading to wrong answers despite diligent execution. By implementing eval points at multiple stages of the pipeline, you can catch misalignments between components—such as document errors or data mixing—before they propagate through the system. This prevents the pipeline from breaking even when individual components appear to be working fine.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g003",
+    "query": "Compare how MM LU restructured question types, subject scope, and category balance to improve benchmark performance.",
+    "ideal_answer": "MM LU made three major restructuring changes to improve benchmark performance:\n\n1. **Question Types**: Replaced basic factuality-based questions with more complex reasoning-based questions, requiring models to think critically rather than simply recall facts.\n\n2. **Subject Scope**: Reduced focus from 57 subjects to 14 broad categories, eliminating the problem of uneven subject representation and inconsistent coverage.\n\n3. **Category Balance**: Ensured adequate question distribution across all 14 categories, preventing any category from being underrepresented.\n\nThese changes proved effective, as reasoning-capable models outperformed non-reasoning models by approximately 20 points, demonstrating that the restructured benchmark successfully requires analytical thinking rather than mere factual recall.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g004",
+    "query": "Suppose Evaluator.py must validate two data frames from mismatched queries. How would row count verification guide subsequent comparison logic?",
+    "ideal_answer": "Row count verification serves as the first critical checkpoint in the Evaluator.py comparison logic. If the two data frames have different row counts, they cannot represent the same result set, indicating one of the queries is incorrect. For example, if querying for the top 5 batsmen returns 5 rows in the golden data frame but only 3 rows in the generated data frame, the generated query is clearly wrong. Therefore, row count comparison must be performed first. Only if the row counts match should the evaluation proceed to subsequent comparison logic, such as comparing column values and data integrity. This hierarchical approach efficiently filters out mismatched queries early before investing computational resources in detailed column-level comparisons.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g005",
+    "query": "How do increased latency & subtle biases against non-technical users emerge with thousands of concurrent users?",
+    "ideal_answer": "Increased latency and subtle biases emerge with thousands of concurrent users in production environments that cannot be replicated offline. When a chatbot handles thousands of concurrent users simultaneously, system latency suddenly increases because the infrastructure cannot be stress-tested at this scale in offline settings. Similarly, biases against non-technical users only become visible at scale—when thousands of conversations occur, patterns emerge showing the chatbot performs well with technical users but exhibits biased behavior toward non-technical individuals. These issues are production-only scenarios that cannot be identified during initial development.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g006",
+    "query": "What percentage of relevant documents does a retriever capture in its top K results?",
+    "ideal_answer": "Recall at K measures the percentage of relevant documents a retriever captures in its top K results. It is calculated as the ratio of correct documents retrieved to the total number of correct relevant documents available. For example, if there are 2 correct relevant documents total and the system retrieves 1 in its top K results, the recall at K is 50% (1÷2). Recall ranges from 0% to 100%, where 100% is ideal and indicates all relevant documents were retrieved.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g007",
+    "query": "How do Model evals enable informed decision-making between proprietary vs. open-source LLMs?",
+    "ideal_answer": "Model evals enable informed decision-making between proprietary and open-source LLMs by providing a systematic way to measure and compare model performance. Without model evals, you essentially operate blindly when selecting between proprietary APIs and open-source models from Hugging Face. Model evals allow you to objectively evaluate which approach—using proprietary LLM APIs directly or deploying your own open-source model with custom APIs—better suits your company's needs. This comparison capability is critical for AI engineers making architectural decisions about whether to build proprietary solutions or leverage existing open-source alternatives.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g008",
+    "query": "How do correctness verification & operational validation capabilities differ between online vs. offline evaluation methods?",
+    "ideal_answer": "Online evaluation cannot guarantee correctness but primarily verifies that an application is functioning normally. It works in some cases but not in others. In contrast, offline evaluation aims to verify actual correctness of outputs comprehensively. The key difference is that online evaluation serves as a preliminary operational validation tool, while offline evaluation provides more thorough correctness verification. Online evaluation is useful for checking normal operation, whereas offline evaluation ensures complete accuracy.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g009",
+    "query": "Compare MMLU Pro's multi-option architecture to GPQA's research-level assessment paradigm.",
+    "ideal_answer": "MMLU Pro and GPQA represent two distinct approaches to LLM evaluation. MMLU Pro increases difficulty through multi-option architecture—expanding from 4 to 10 answer choices per question across 14,000 MCQs—making correct answer identification more challenging. GPQA, by contrast, employs a research-level assessment paradigm featuring approximately 500 extremely difficult questions that require specialized knowledge beyond typical online search capability. While MMLU Pro focuses on option complexity, GPQA prioritizes depth of knowledge, making both complementary benchmarks for evaluating different dimensions of LLM performance.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g010",
+    "query": "How do capability, cost, performance benchmarks and user preference voting compare coding agents across modalities?",
+    "ideal_answer": "Coding agents across modalities are compared using multiple evaluation approaches:\n\n1. **Capability, Cost, and Performance Benchmarks**: These create overall leaderboards by accumulating metrics across modalities (speech, image, audio, hardware). This combined approach is the most practical, answering which model offers the strongest overall combination of capability, cost, and performance—the leaderboard type most frequently used.\n\n2. **Human Preference-Based Leaderboards**: Instead of benchmark rankings, these collect user votes comparing direct answers from two models (A and B) on the same question. Users score responses based on helpfulness, clarity, writing quality, creativity, and presentation style. Rankings are then generated from aggregated votes, providing real-world preference insights that complement benchmark data.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g011",
+    "query": "How do Schema.sql, model slugs, SQL execution, and Evaluate.py determine result correctness in workflow?",
+    "ideal_answer": "The workflow determines result correctness through an integrated process:\n\n1. **Schema.sql** - Provides the database structure used to create the system prompt\n2. **Model Slugs** - Source information from OpenRouter for LLM model selection\n3. **SQL Execution** - The generated SQL queries are executed against the database\n4. **Evaluate.py** - Compares actual results against the golden dataset to verify correctness\n\nThe flow loads the schema, golden dataset, connects to the database, then loops through each model to call it, generate SQL, execute it, and invoke the Evaluate function which determines if results match expected outputs.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g012",
+    "query": "How do MMLU's 57 subjects, 14K MCQs from real exams, and breadth-focused design establish LLM knowledge capability?",
+    "ideal_answer": "MMLU establishes LLM knowledge capability through three key elements:\n\n1. **Breadth Over Depth**: The benchmark specifically tests breadth of knowledge rather than depth, assessing how much general knowledge an LLM possesses across diverse domains.\n\n2. **Comprehensive Coverage**: With 57 subjects and 14,000 multiple-choice questions, MMLU creates a wide-ranging evaluation that spans numerous knowledge areas.\n\n3. **Real-World Standards**: Questions are sourced from actual exams (USMLE, USGRE, AP), ensuring the assessment reflects genuine, credible knowledge standards.\n\nLaunched in September 2020, MMLU's purpose is straightforward: to measure how \"smart\" an LLM is by evaluating its overall knowledge breadth across multiple domains.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g013",
+    "query": "If a model trained on internet data encounters unfamiliar queries, how does benchmarking assess truthfulness vs. knowledge gaps?",
+    "ideal_answer": "Benchmarking assesses truthfulness by evaluating whether the model knows it doesn't know the answer, rather than testing factual knowledge directly. Even when trained on internet data, a model cannot guarantee absorption of all information due to data cleaning stages and filtering. The core philosophy focuses on checking the model's truthfulness—whether it correctly identifies its knowledge gaps—rather than simply assessing what it knows. Knowledge-based questions are used as a tool to judge the model's understanding of its own limitations and capabilities.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g014",
+    "query": "When does the AI engineering track conclude post-system design completion?",
+    "ideal_answer": "The AI engineering track will be completed by the end of December. After system design is completed in November-December, the remaining components of the track will be finished, including context engineering, LLM Ops, LLM evaluations, and multi-agent systems training using Langraph.",
+    "source": "TODO-verify"
+  },
+  {
+    "id": "g015",
+    "query": "Assess multi-category performance degradation risks in LLM prompt optimization workflows.",
+    "ideal_answer": "When optimizing LLM prompts, regression testing is critical to prevent performance degradation across different question categories. To assess multi-category performance risks:\n\n1. **Diversify your evaluation dataset**: Include varied question types (refunds, pricing, curriculum, etc.) to cover all use cases and catch category-specific regressions.\n\n2. **Establish baseline metrics**: Set performance benchmarks for each category before optimization (e.g., 90% success rate for refund questions).\n\n3. **Monitor post-optimization performance**: After prompt changes, verify that each category maintains or improves its baseline metrics. If performance drops (e.g., from 90% to 80%), it signals regression in that category.\n\n4. **Track changes per category**: Run offline evaluations on every question type to identify which categories are affected and to what degree.\n\nThis systematic approach ensures improvements in one area don't inadvertently degrade performance in others.",
+    "source": "TODO-verify"
+  }
+]

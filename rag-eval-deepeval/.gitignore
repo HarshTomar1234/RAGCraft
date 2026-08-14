@@ -1,0 +1,5 @@
+.env
+chroma_store/
+.deepeval/
+__pycache__/
+*.py[oc]
