@@ -11,7 +11,7 @@ A RAG pipeline built over YouTube course transcripts (LLM evaluation lectures), 
 
 ### Generation (`src/generator.py`)
 - The generator component in isolation: `generate(query, context) -> answer`.
-- Faithfulness-first prompt — answers only from the given context, explicitly abstains when the context doesn't cover the question.
+- Faithfulness-first prompt — answers only from the given context. Handles partial coverage explicitly (answers the part the context covers and says what's missing, rather than abstaining outright), and caps answer length to what the question needs to avoid padding.
 - Uses `ChatAnthropic` (`claude-haiku-4-5`) via LangChain's `prompt | llm | StrOutputParser` chain.
 
 ### Reranking (`src/reranker.py`)
@@ -26,6 +26,7 @@ DeepEval's metrics and `Synthesizer` default to OpenAI as the judge/generator mo
 - `evals/eval_retriever_with_reranker.py`
 - `evals/eval_generator.py`
 - `evals/eval_rag_pipeline.py`
+- `evals/eval_application.py`
 - `goldens/generate_goldens.py`
 - `resources/deepeval_intro.py`
 
@@ -36,10 +37,15 @@ DeepEval's metrics and `Synthesizer` default to OpenAI as the judge/generator mo
 - `eval_retriever_with_reranker.py` — same metrics against the reranked retriever, for direct comparison.
 - `eval_generator.py` — generator in isolation (fixed golden context, not retriever output), `FaithfulnessMetric` + `AnswerRelevancyMetric`.
 - `eval_rag_pipeline.py` — full pipeline on live output, `ContextualRelevancyMetric` + `FaithfulnessMetric` + `AnswerRelevancyMetric`.
+- `eval_application.py` — application-level quality on live pipeline output, using three custom `GEval` metrics with explicit evaluation steps and score-range rubrics:
+  - **Correctness** (reference-based) — judges truth against `expected_output`, not completeness or length.
+  - **Completeness** (reference-based) — judges coverage of the expected output's key points, independent of correctness.
+  - **Style** (reference-free, no `expected_output`) — judges teaching tone/register only, never correctness or length.
 
 ### Goldens (`goldens/`)
 - `retriever_goldens.json` — hand-authored question / ideal-answer pairs for retriever eval.
 - `faithfulness_dataset.json` — query + ideal-context pairs for isolated generator eval.
+- `correctness_goldens.json` — question + ideal-answer pairs for the application-level Correctness/Completeness/Style eval.
 - `generate_goldens.py` — uses DeepEval's `Synthesizer` (via `ClaudeJudge`) to draft additional goldens from transcript chunks; output goes to `retriever_deepeval_goldens.json` and should be reviewed before use.
 
 ### Other
@@ -85,6 +91,7 @@ python -m evals.eval_retriever
 python -m evals.eval_retriever_with_reranker
 python -m evals.eval_generator
 python -m evals.eval_rag_pipeline
+python -m evals.eval_application
 python goldens/generate_goldens.py
 python resources/deepeval_intro.py
 ```
