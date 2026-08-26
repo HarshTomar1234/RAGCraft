@@ -969,6 +969,20 @@ wheels = [
 ]
 
 [[package]]
+name = "langchain-anthropic"
+version = "1.5.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anthropic" },
+    { name = "langchain-core" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6f/c6/97c439282c13225beb56ba96ed2a5b1cb2c32eacb84c518fe475ce43711d/langchain_anthropic-1.5.6.tar.gz", hash = "sha256:648fdab25573fc9d29543c4b4af1d682b7b6e548d452bb46e67ebc586e195629", size = 720743, upload-time = "2026-08-13T02:30:48.262Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/5e/61b288074742179041cb5390430e52429a0fc41f4a94efec20042bda009f/langchain_anthropic-1.5.6-py3-none-any.whl", hash = "sha256:c358ed2ca90ef75254bb73a96b0a8a8ef0efc1deabe529ea06db6ff403001a27", size = 56547, upload-time = "2026-08-13T02:30:47.118Z" },
+]
+
+[[package]]
 name = "langchain-chroma"
 version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2266,6 +2280,7 @@ dependencies = [
     { name = "chromadb" },
     { name = "deepeval" },
     { name = "instructor" },
+    { name = "langchain-anthropic" },
     { name = "langchain-chroma" },
     { name = "langchain-core" },
     { name = "langchain-openai" },
@@ -2283,6 +2298,7 @@ requires-dist = [
     { name = "chromadb", specifier = ">=1.5.9" },
     { name = "deepeval", specifier = ">=4.1.7" },
     { name = "instructor", specifier = ">=1.15.4" },
+    { name = "langchain-anthropic", specifier = ">=1.5.6" },
     { name = "langchain-chroma", specifier = ">=1.1.0" },
     { name = "langchain-core", specifier = ">=1.5.4" },
     { name = "langchain-openai", specifier = ">=1.4.3" },
