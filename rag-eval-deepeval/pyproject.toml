@@ -19,4 +19,5 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "pywin32>=312",
     "sentence-transformers>=5.7.0",
+    "streamlit>=1.62.0",
 ]
