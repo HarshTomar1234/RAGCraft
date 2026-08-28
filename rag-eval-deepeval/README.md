@@ -1,4 +1,4 @@
-# rag-eval-proj
+# rag-eval-deepeval
 
 A RAG pipeline built over YouTube course transcripts (LLM evaluation lectures), evaluated end-to-end with DeepEval. Generation and judging both run on Claude — this project has no active OpenAI usage.
 
