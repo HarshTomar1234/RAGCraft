@@ -77,7 +77,7 @@ The project treats RAG evaluation as a layered engineering problem rather than a
         └────────────────────────┘       │ Prompt Leakage          │
                                          │ Course Leakage          │
                                          │ PII Leakage             │
-                                         │ Scope Adherence          │
+                                         │ Scope Adherence         │
                                          └─────────────────────────┘
 ```
 
