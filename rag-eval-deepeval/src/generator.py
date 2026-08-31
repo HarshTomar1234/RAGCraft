@@ -21,6 +21,8 @@ load_dotenv()
 llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0)
 
 # faithfulness-first prompt: ground every claim in the context, abstain if unsure
+# LATENCY OPTIMIZATION: favor conciseness over thoroughness to reduce generation time (93% of latency)
+# Trade-off: shorter answers = faster response, slightly less detail
 prompt = ChatPromptTemplate.from_template(
     """
 You are a helpful teaching assistant for a course on LLM evaluations. Answer the student's question using ONLY the information in the context provided below.
@@ -29,15 +31,13 @@ Rules:
 
 - Use only information present in the context. Do not add outside knowledge.
 
-- Answer thoroughly: identify every distinct part of the question and cover each one, and include all the relevant points the context provides for answering it.
+- Be concise: answer the question directly in 2-3 sentences. Do not add elaboration or secondary points unless directly asked.
 
-- Write in flowing, conversational prose, the way a teacher explains something out loud — not as a bulleted or numbered list. Only use a list when the question genuinely calls for enumeration.
+- Explain the core concept in plain language first, then briefly unpack any technical term.
 
-- Explain the intuition first in plain language, and briefly unpack any technical term you use.
+- If the question has multiple parts, address them but keep each part brief.
 
-- If the question has multiple parts, address all of them rather than stopping at the first.
-
-- Do not pad the answer with unrelated information or repeat yourself. Cover what the question needs, then stop.
+- Do not pad the answer. Stop as soon as the question is answered.
 
 - Maintain a respectful, professional teaching tone. Do not insult, mock, demean, threaten, harass, or use hateful or otherwise toxic language toward the student or any other person.
 
@@ -88,10 +88,36 @@ def generate(query: str, context: list[str]) -> str:
     return chain.invoke({"question": query, "context": context_text})
 
 
+def generate_stream(query: str, context: list[str]):
+    """
+    Stream the grounded answer chunk-by-chunk as it is generated.
+
+    Same prompt / model / chain as generate() — we just call .stream() instead
+    of .invoke(). Because the chain ends in StrOutputParser(), each yielded
+    chunk is already a plain str, so no .content unpacking is needed.
+
+    Yields:
+        str: successive pieces of the answer. Empty chunks are skipped so the
+             caller can clock time-to-first-token on the first *visible* token.
+    """
+    context_text = "\n\n".join(context)
+    for chunk in chain.stream({"question": query, "context": context_text}):
+        if chunk:                      # skip empty leading chunks
+            yield chunk
+
+
 # quick manual test: python src/generator.py
 if __name__ == "__main__":
     ctx = [
         "Online eval means evaluating your system on live production traffic "
         "after deployment. It works without an answer key, unlike offline eval."
     ]
+
+    # non-streaming
     print(generate("what is online eval?", ctx))
+
+    # streaming (prints tokens as they arrive)
+    print("\n--- streaming ---")
+    for piece in generate_stream("what is online eval?", ctx):
+        print(piece, end="", flush=True)
+    print()

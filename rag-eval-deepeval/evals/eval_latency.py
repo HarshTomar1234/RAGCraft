@@ -19,6 +19,18 @@ Key ideas encoded below:
   - decompose the pipeline            (retrieval + generation, + TTFT)
   - log answer length                 (latency couples to output length)
   - single-user only                  (load testing is a separate exercise)
+
+PROFESSIONAL LATENCY MEASUREMENT CONSIDERATIONS:
+  ✓ Prefer latency distributions (P50/P95/P99) over averages — tail latency is what users feel
+  ✓ Measure component-level latency, not just end-to-end — isolates bottlenecks
+  ✓ Measure TTFT separately — streaming makes perceived latency much better than total latency
+  ✓ Watch for cold starts — warm up the system before measuring
+  ✓ Record context size and token counts — latency scales with input/output length
+  ✓ Distinguish latency from throughput — two different optimization problems
+  ✓ Repeat runs because external APIs are noisy — single runs lie
+  ✓ Track failures separately — a fast failure is still a failure
+  ✓ Set latency budgets at both system and component level — helps target improvements
+  ✓ Use representative and segmented workloads — simple questions != complex questions
 """
 
 # ============================================================
@@ -48,6 +60,26 @@ WARMUP_RUNS = 2       # throwaway calls before measuring (cold start)
 
 MEASURE_TTFT = True   # stream generation and clock time-to-first-token (perceived latency)
 STAGE_LEVEL = True    # split retrieval vs generation (ignored/implied when MEASURE_TTFT is on)
+
+# ============================================================
+# LATENCY IMPROVEMENT STRATEGIES (ranked by impact):
+# ============================================================
+# 1. REDUCE GENERATOR TIME (93% of latency) — current bottleneck
+#    → Limit answer length (fewer tokens = faster generation)
+#    → Reduce context size (fewer input tokens = faster)
+#    → Use simpler model for simple questions (but may hurt quality)
+#
+# 2. ANALYZE RETRIEVER (7% of latency) — embedding → vector DB → reranker
+#    → Cache embeddings (already happening in Chroma)
+#    → Reduce fetch_k if top_k is doing the job alone
+#
+# 3. CACHE RESPONSES (if queries repeat)
+#    → Same question = zero latency (instant cache hit)
+#    → Semantic caching (similar questions → cached similar answer)
+#
+# 4. OPTIMIZE INFRASTRUCTURE DISTANCE
+#    → Minimize network hops to LLM API (geography matters)
+#    → Already using Anthropic's fastest inference (Claude Haiku)
 
 # SLOs / budgets. A latency number is meaningless without a target to pass/fail against.
 SLO_P95_MS = 3000        # end-to-end: full answer p95 under 3s
