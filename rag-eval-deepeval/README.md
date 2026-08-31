@@ -631,6 +631,68 @@ These results should be interpreted as **evaluation snapshots**, not permanent g
 
 ---
 
+## Operational Metrics
+
+Beyond correctness, the system measures real-world operational performance:
+
+### Reliability
+
+**`evals/eval_reliability.py`** — Measures whether the RAG application can serve requests without failing.
+
+Tracks:
+* Success rate
+* Error rate
+* Retry behavior (exponential backoff with 2 retries, 0.5s base delay)
+
+**Result:**
+* **100% success rate** (20/20 requests)
+* 0% error rate
+* 0% retry rate
+
+---
+
+### Latency
+
+**`evals/eval_latency.py`** — Measures response time with percentile-based reporting (P50, P95, P99).
+
+Reports both:
+* **End-to-end latency** — total time from query to complete answer
+* **Time-to-first-token (TTFT)** — perceived latency (how long until user sees first response token)
+
+Component breakdown:
+* Retrieval: ~240ms mean
+* Generation: ~1820ms mean (dominant bottleneck)
+
+**Latency Optimization:** 
+Rewriting the generator prompt to favor conciseness over thoroughness reduced:
+* Generation time: 3493ms → 1820ms mean (**48% improvement**)
+* Answer length: 1090 → 449 characters (**59% reduction**)
+
+**Result:**
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| p95 end-to-end | ≤ 3000ms | **2698ms** | ✓ PASS |
+| p95 TTFT | ≤ 1200ms | **1160ms** | ✓ PASS |
+
+---
+
+### Cost
+
+**`evals/eval_cost.py`** — Measures token usage and projects cost at scale.
+
+Tracks:
+* Input tokens
+* Output tokens
+* Cached tokens (Anthropic prompt caching)
+* Daily/monthly projections at configurable QPS
+
+**Result:**
+* **$0.000337 per query** (~0.032 INR per query)
+* **$0.67 per day** at 2000 queries/day (~64 INR/day)
+* Budget: ≤ $0.0015/query → ✓ PASS
+
+---
+
 # Claude as the Evaluation Judge
 
 The project currently uses Claude for both:
@@ -1169,14 +1231,19 @@ but:
 
 # Further Work
 
+Completed:
+* ✓ Reliability measurement (`eval_reliability.py`)
+* ✓ Latency benchmarking (`eval_latency.py`) — including TTFT and component decomposition
+* ✓ Cost-per-query measurement (`eval_cost.py`)
+* ✓ Toxicity evaluation with custom GEval
+* ✓ Leakage evaluation (prompt, content, PII) with custom GEval
+* ✓ Scope safety evaluation
+
 Potential future improvements include:
 
 * larger and more diverse evaluation datasets
 * automated regression testing in CI
 * evaluation-result persistence and comparison across runs
-* retrieval latency benchmarking
-* generation latency benchmarking
-* cost-per-query measurement
 * model comparison experiments
 * embedding-model comparison
 * reranker comparison
