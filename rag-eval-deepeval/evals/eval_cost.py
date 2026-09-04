@@ -132,7 +132,7 @@ def report(rows):
     out_share = 100 * avg_cost_out / avg_cost if avg_cost else 0
 
     print("\n" + "=" * 70)
-    print(f"COST  (gpt-4o-mini @ ${PRICE_INPUT_PER_1M}/${PRICE_OUTPUT_PER_1M} per 1M in/out)")
+    print(f"COST  (Claude Haiku @ ${PRICE_INPUT_PER_1M}/${PRICE_OUTPUT_PER_1M} per 1M in/out)")
     print("=" * 70)
     print(f"samples                : {n}")
     print(f"avg input tokens       : {avg_in:8.0f}   ({avg_cached:.0f} cached)")

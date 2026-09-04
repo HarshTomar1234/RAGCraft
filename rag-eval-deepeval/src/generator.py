@@ -79,7 +79,7 @@ Answer:
 """
 )
 
-chain = prompt | llm | StrOutputParser()
+chain = prompt | llm.bind(max_tokens=150) | StrOutputParser()
 
 
 def generate(query: str, context: list[str]) -> str:

@@ -21,6 +21,7 @@ from deepeval.metrics import (
 )
 
 from src.rag_pipeline import RagPipeline
+from evals.harness import load_goldens, summarize_by_metric, print_summary
 
 load_dotenv()
 
@@ -58,35 +59,42 @@ class ClaudeJudge(DeepEvalBaseLLM):
 JUDGE_MODEL = ClaudeJudge()  # sonnet-5 deterministically malforms ContextualRelevancyMetric's tool call on this dataset; haiku doesn't
 
 
-# 1. LOAD queries (we only need the queries — context comes from the pipeline now)
-with open(GOLDEN_PATH) as f:
-    goldens = json.load(f)
+def run(rag):
+    """Evaluate full RAG pipeline (contextual relevancy, faithfulness, answer relevancy)."""
+    # 1. LOAD queries (we only need the queries — context comes from the pipeline now)
+    goldens = load_goldens(GOLDEN_PATH)
 
+    # 2. RUN THE FULL PIPELINE per query, build a test case from LIVE output
+    test_cases = []
+    for g in goldens:
+        result = rag.invoke(g["query"])          # retrieve → rerank → generate
 
-# 2. RUN THE FULL PIPELINE per query, build a test case from LIVE output
-rag = RagPipeline()
-test_cases = []
-for g in goldens:
-    result = rag.invoke(g["query"])          # retrieve → rerank → generate
-
-    test_cases.append(
-        LLMTestCase(
-            input=g["query"],
-            actual_output=result["answer"],       # what the generator produced
-            retrieval_context=result["context"],  # what the RETRIEVER returned
+        test_cases.append(
+            LLMTestCase(
+                input=g["query"],
+                actual_output=result["answer"],       # what the generator produced
+                retrieval_context=result["context"],  # what the RETRIEVER returned
+            )
         )
-    )
+
+    # 3. THE THREE TRIAD METRICS
+    metrics = [
+        ContextualRelevancyMetric(threshold=THRESHOLD, model=JUDGE_MODEL, include_reason=True),
+        FaithfulnessMetric(threshold=THRESHOLD, model=JUDGE_MODEL, include_reason=True),
+        AnswerRelevancyMetric(threshold=THRESHOLD, model=JUDGE_MODEL, include_reason=True),
+    ]
+
+    # 4. EVALUATE
+    # parallel, but capped: unbounded concurrency floods the rate limit and trips
+    # deepeval's per-test-case timeout
+    result = evaluate(test_cases=test_cases, metrics=metrics, async_config=AsyncConfig(max_concurrent=5))
+    return summarize_by_metric(result)
 
 
-# 3. THE THREE TRIAD METRICS
-metrics = [
-    ContextualRelevancyMetric(threshold=THRESHOLD, model=JUDGE_MODEL, include_reason=True),
-    FaithfulnessMetric(threshold=THRESHOLD, model=JUDGE_MODEL, include_reason=True),
-    AnswerRelevancyMetric(threshold=THRESHOLD, model=JUDGE_MODEL, include_reason=True),
-]
+def run_local():
+    """Standalone convenience: build the pipeline, then run."""
+    return run(RagPipeline())
 
 
-# 4. EVALUATE
-# parallel, but capped: unbounded concurrency floods the rate limit and trips
-# deepeval's per-test-case timeout
-evaluate(test_cases=test_cases, metrics=metrics, async_config=AsyncConfig(max_concurrent=5))
+if __name__ == "__main__":
+    print_summary("rag_pipeline", run_local())

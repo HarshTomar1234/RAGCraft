@@ -1,5 +1,17 @@
-.env
-chroma_store/
-.deepeval/
+# Python-generated files
 __pycache__/
 *.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets
+.env
+
+# Generated / cache artifacts (regenerable from source)
+.deepeval/
+chroma_store/

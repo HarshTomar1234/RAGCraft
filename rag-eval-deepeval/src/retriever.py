@@ -41,11 +41,12 @@ def load_transcripts():
     docs = []
     for path in glob.glob(f"{DATA_DIR}/*.vtt"):
         lines = []
-        for line in open(path):
-            line = line.strip()
-            if not line or line == "WEBVTT" or "-->" in line:
-                continue
-            lines.append(line)
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line == "WEBVTT" or "-->" in line:
+                    continue
+                lines.append(line)
         text = " ".join(lines)
 
         session = re.search(r"Session[ _]*(\d+)", path).group(1)

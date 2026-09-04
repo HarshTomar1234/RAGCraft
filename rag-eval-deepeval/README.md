@@ -664,15 +664,33 @@ Component breakdown:
 * Generation: ~1820ms mean (dominant bottleneck)
 
 **Latency Optimization:** 
-Rewriting the generator prompt to favor conciseness over thoroughness reduced:
+Initial optimization rewriting the generator prompt to favor conciseness over thoroughness reduced:
 * Generation time: 3493ms → 1820ms mean (**48% improvement**)
 * Answer length: 1090 → 449 characters (**59% reduction**)
 
-**Result:**
+This achieved target SLOs in an earlier run. However, subsequent constraints (max_tokens=150) did not yield further latency improvements, suggesting the bottleneck is context processing rather than output generation.
+
+**Current Result (as of latest run):**
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| p95 end-to-end | ≤ 3000ms | **2698ms** | ✓ PASS |
-| p95 TTFT | ≤ 1200ms | **1160ms** | ✓ PASS |
+| p95 end-to-end | ≤ 3000ms | 5572ms | FAIL |
+| p95 TTFT | ≤ 1200ms | 3684ms+ | FAIL |
+| Cost per query | ≤ $0.0015 | $0.000254 | PASS |
+| Reliability | 100% | 100% (20/20) | PASS |
+
+**Quality Metrics:**
+| Metric | Score | Pass Rate |
+|--------|-------|-----------|
+| Generator Faithfulness | 0.9778 | 100% |
+| Generator Answer Relevancy | 0.9089 | 91% |
+| Application Correctness | 0.88 | 93% |
+| Application Completeness | 0.687 | 53% |
+| Retriever Recall | 0.9722 | 97% |
+| Retriever Precision | 0.8998 | 90% |
+| Safety: Toxicity | 1.00 | 100% |
+| Safety: Scope Adherence | 0.94 | 100% |
+| Safety: Content Leakage | 0.98 | 100% |
+| Safety: PII Leakage | 0.90 | 100% |
 
 ---
 
@@ -689,7 +707,7 @@ Tracks:
 **Result:**
 * **$0.000337 per query** (~0.032 INR per query)
 * **$0.67 per day** at 2000 queries/day (~64 INR/day)
-* Budget: ≤ $0.0015/query → ✓ PASS
+* Budget: ≤ $0.0015/query → PASS
 
 ---
 
@@ -881,6 +899,129 @@ ANTHROPIC_API_KEY=your-key-here
 ```
 
 The project does not require an OpenAI API key for its current Claude-based configuration.
+
+---
+
+# Regression Testing
+
+## Setup
+
+Regression testing ensures that code changes don't degrade evaluation metrics.
+
+The system uses two baselines:
+
+```text
+baselines/baseline.json    ← current stable version (reference point)
+baselines/candidate.json   ← new experimental version (comparison target)
+```
+
+## Running a Regression Test
+
+### 1. Establish a baseline
+
+After a significant improvement or before making breaking changes:
+
+```bash
+python -m evals.run_suite
+cp baselines/candidate.json baselines/baseline.json
+```
+
+### 2. Make experimental changes
+
+Modify code (generator prompt, retriever parameters, etc.).
+
+### 3. Run the test suite again
+
+```bash
+python -m evals.run_suite
+```
+
+This creates a new `baselines/candidate.json` with the changed system.
+
+### 4. Compare results
+
+```bash
+python -m evals.compare --all
+```
+
+Output shows:
+
+```text
+metric                                           baseline  candidate      delta  status
+application.correctness_[geval].avg_score            0.86       0.88      +0.02  improved
+ops.latency.e2e_p95_ms                               5484       5572      +88.2  flat
+safety.toxicity.avg_toxicity                       0.9867          1   +0.01333  improved
+```
+
+## Interpreting Results
+
+| Status | Meaning | Action |
+|--------|---------|--------|
+| **improved** | Metric got better | Safe to keep |
+| **flat** | Within noise margin | Safe if other metrics didn't regress |
+| **regressed** | Metric got worse | Investigate before committing |
+
+### Key guardrails
+
+The system flags regressions in:
+* **Quality**: any metric ≤ 0.70 or declining >5%
+* **Safety**: any safety metric declining
+* **Reliability**: any error rate increase
+
+### Regression verdict
+
+The suite automatically prints:
+
+```text
+VERDICT: PASS   -- no gate blocked, no guardrail regressed. Safe to promote.
+```
+
+or:
+
+```text
+VERDICT: FAIL   -- [list of failed gates/regressions]. Do not promote.
+```
+
+## Baseline Management
+
+### View baseline metadata
+
+```bash
+cat baselines/baseline.json | jq '.metadata'
+```
+
+Shows:
+* git SHA of the baseline version
+* prompt hash (detects prompt changes)
+* suite execution time
+* evaluation timestamp
+
+### Update baseline after validation
+
+```bash
+cp baselines/candidate.json baselines/baseline.json
+git add baselines/baseline.json
+git commit -m "regression-gate: promote candidate to baseline (metrics validated)"
+```
+
+## CI Integration
+
+For automated regression testing in CI:
+
+```bash
+# Run full suite
+python -m evals.run_suite
+
+# Compare against baseline
+result=$(python -m evals.compare --all | grep "VERDICT:")
+if [[ $result == *"FAIL"* ]]; then
+    echo "Regression detected"
+    exit 1
+fi
+
+# If passing, optionally update baseline
+cp baselines/candidate.json baselines/baseline.json
+```
 
 ---
 
@@ -1232,12 +1373,12 @@ but:
 # Further Work
 
 Completed:
-* ✓ Reliability measurement (`eval_reliability.py`)
-* ✓ Latency benchmarking (`eval_latency.py`) — including TTFT and component decomposition
-* ✓ Cost-per-query measurement (`eval_cost.py`)
-* ✓ Toxicity evaluation with custom GEval
-* ✓ Leakage evaluation (prompt, content, PII) with custom GEval
-* ✓ Scope safety evaluation
+* Reliability measurement (`eval_reliability.py`)
+* Latency benchmarking (`eval_latency.py`) — including TTFT and component decomposition
+* Cost-per-query measurement (`eval_cost.py`)
+* Toxicity evaluation with custom GEval
+* Leakage evaluation (prompt, content, PII) with custom GEval
+* Scope safety evaluation
 
 Potential future improvements include:
 
